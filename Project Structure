@@ -1,0 +1,16 @@
+carbon-dashboard
+│
+├── data
+│   ├── electricity.csv
+│   ├── emissions.csv
+│
+├── src
+│   ├── components
+│   ├── charts
+│   ├── pages
+│   └── utils
+│
+├── public
+│
+├── README.md
+└── package.json
