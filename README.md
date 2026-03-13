@@ -1,82 +1,73 @@
-Описание проекта
+# React + TypeScript + Vite
 
-Carbon Footprint Dashboard — это веб-дашборд для визуализации углеродного следа университета, потребления энергии и динамики выбросов CO₂.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-Цель проекта — повысить экологическую осведомленность и поддержать инициативы устойчивого развития.
+Currently, two official plugins are available:
 
-🎯 Цель проекта
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-Создать интерактивный дашборд, который:
+## React Compiler
 
-показывает углеродный след университета
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-отслеживает потребление энергии
+## Expanding the ESLint configuration
 
-отображает динамику выбросов
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-помогает контролировать снижение CO₂
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
 
-📊 Основные функции
-🌱 Углеродный след
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
 
-Основные показатели:
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```
 
-общий углеродный след университета
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-CO₂ на одного студента или сотрудника
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
 
-CO₂ на 1 м² зданий
-
-Источники выбросов:
-
-электричество
-
-отопление / газ
-
-транспорт
-
-отходы
-
-⚡ Потребление электроэнергии
-
-график потребления по месяцам
-
-сравнение с предыдущим годом
-
-топ-10 зданий по потреблению энергии
-
-🌫 Анализ выбросов CO₂
-
-Категории выбросов:
-
-Scope 1 — прямые выбросы
-
-Scope 2 — выбросы от электроэнергии
-
-Функции:
-
-тренд выбросов за 3–5 лет
-
-распределение по Scope
-
-визуальные эквиваленты (деревья, километры)
-
-🏫 Анализ зданий
-
-тепловая карта кампуса
-
-сравнение зданий
-
-топ-5 экологичных зданий
-
-топ-5 зданий с наибольшими выбросами
-
-📉 Прогноз сокращения выбросов
-
-Сценарии:
-
-текущий сценарий
-
-цель устойчивого развития
-
-внедрение энергосберегающих технологий
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```
