@@ -1,0 +1,44 @@
+version: '3.9'
+
+services:
+  carbon-dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: carbon-dashboard
+    image: carbon-dashboard:latest
+
+    # ⚠️ Порт 3041 — уникальный для этого проекта
+    # Не менять без согласования с командой деплоя
+    ports:
+      - "${NGINX_PORT:-3041}:80"
+
+    restart: unless-stopped
+
+    environment:
+      - NGINX_PORT=${NGINX_PORT:-3041}
+
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    labels:
+      - "project=carbon-dashboard"
+      - "team=arai-dastan"
+      - "maintainer=Arai2023"
+
+# Нет общих сетей с другими проектами — полная изоляция
+networks:
+  default:
+    name: carbon-dashboard-net
+    driver: bridge
