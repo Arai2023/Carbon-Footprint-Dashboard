@@ -80,7 +80,9 @@ export default function ElectricityPage({ year, building, t }: Props) {
           { label: t.electricity.total,      value: kpi.totalKwh.toLocaleString(), unit: 'МВтч', icon: '⚡' },
           { label: t.electricity.peak,       value: '912',   unit: 'МВтч', icon: '📈' },
           { label: t.electricity.perStudent, value: '1 635', unit: 'кВтч', icon: '🎓' },
-          { label: t.electricity.coeff,      value: data.co2Coefficient.toString(), unit: 'кг/кВтч', icon: '🌿' },
+          // Замените строку 83 на эту:
+          { label: t.electricity.coeff, value: data.co2Coefficient?.toString() || '0.514', // '0.514' как значение по умолчаниюunit: 'кг/кВтч', icon: '🌿' },
+          }
         ].map(c => (
           <div key={c.label} style={{ ...card, display: 'flex', flexDirection: 'column', gap: 8 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

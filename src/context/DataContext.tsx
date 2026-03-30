@@ -1,12 +1,6 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import {
-  electricity as defaultElectricity,
-  buildings as defaultBuildings,
-  emissions as defaultEmissions,
-  kpi as defaultKpi,
-  CO2_COEFFICIENT as defaultCO2Coeff,
-  HEAT_COEFFICIENT as defaultHeatCoeff,
-} from '../data/mockData';
+import { createContext, useContext, useState, ReactNode } from 'react';
+import { electricity as defaultElectricity, buildings as defaultBuildings, emissions as defaultEmissions, kpi as defaultKpi, CO2_COEFFICIENT as defaultCO2Coeff,
+  HEAT_COEFFICIENT as defaultHeatCoeff } from '../data/mockData';
 
 export interface BuildingRow {
   name: string;
@@ -15,30 +9,16 @@ export interface BuildingRow {
   green: boolean;
 }
 
-export interface AppData {
+export interface DashboardData {
   electricity: Record<number, number[]>;
   buildings: BuildingRow[];
   emissions: { scope1: number[]; scope2: number[] };
-  kpi: {
-    totalCO2: number;
-    co2PerStudent: number;
-    co2PerSqm: number;
-    students: number;
-    totalKwh: number;
-  };
+  kpi: { totalCO2: number; co2PerStudent: number; co2PerSqm: number; students: number; totalKwh: number };
   co2Coefficient: number;
   heatCoefficient: number;
 }
 
-interface DataContextType {
-  data: AppData;
-  setData: (d: AppData) => void;
-  resetData: () => void;
-}
-
-const STORAGE_KEY = 'kbtu_carbon_dashboard_data';
-
-const defaultData: AppData = {
+const DEFAULT_DATA: DashboardData = {
   electricity: defaultElectricity,
   buildings: defaultBuildings,
   emissions: defaultEmissions,
@@ -47,48 +27,32 @@ const defaultData: AppData = {
   heatCoefficient: defaultHeatCoeff,
 };
 
-/** Load saved data from localStorage, fall back to defaults if missing/corrupt */
-function loadData(): AppData {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return defaultData;
-    const parsed = JSON.parse(raw) as AppData;
-    // Basic sanity check — make sure key fields exist
-    if (!parsed.electricity || !parsed.buildings || !parsed.kpi) return defaultData;
-    // Merge: ensure electricity keys are numbers (JSON stringifies them as strings)
-    const electricity: Record<number, number[]> = {};
-    for (const [k, v] of Object.entries(parsed.electricity)) {
-      electricity[parseInt(k)] = v as number[];
-    }
-    return { ...parsed, electricity };
-  } catch {
-    return defaultData;
-  }
+interface DataContextType {
+  data: DashboardData;
+  setData: (data: DashboardData) => void;
+  resetData: () => void;
 }
 
-const DataContext = createContext<DataContextType>({
-  data: defaultData,
-  setData: () => {},
-  resetData: () => {},
-});
+const DataContext = createContext<DataContextType | null>(null);
 
 export function DataProvider({ children }: { children: ReactNode }) {
-  const [data, setDataState] = useState<AppData>(loadData);
-
-  // Persist every change to localStorage
-  useEffect(() => {
+  const [data, setDataState] = useState<DashboardData>(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      const saved = localStorage.getItem('carbon_data');
+      return saved ? JSON.parse(saved) : DEFAULT_DATA;
     } catch {
-      // localStorage quota exceeded or unavailable — silently ignore
+      return DEFAULT_DATA;
     }
-  }, [data]);
+  });
 
-  const setData = (d: AppData) => setDataState(d);
+  const setData = (newData: DashboardData) => {
+    setDataState(newData);
+    localStorage.setItem('carbon_data', JSON.stringify(newData));
+  };
 
   const resetData = () => {
-    localStorage.removeItem(STORAGE_KEY);
-    setDataState(defaultData);
+    setDataState(DEFAULT_DATA);
+    localStorage.removeItem('carbon_data');
   };
 
   return (
@@ -99,5 +63,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 }
 
 export function useData() {
-  return useContext(DataContext);
+  const ctx = useContext(DataContext);
+  if (!ctx) throw new Error('useData must be used within DataProvider');
+  return ctx;
 }
